@@ -7,8 +7,11 @@
 #include <CommCtrl.h>
 #include <GdiPlus.h>
 
+#include "minigui/window.h"
+#include "minigui/graphics.h"
+
 ///
-/// Minigui
+/// Minigui namespace
 ///
 namespace minigui
 {
@@ -24,36 +27,28 @@ namespace minigui
 	{
 	private:
 		///
-		/// Singleton instance
-		///
-		static std::shared_ptr<application> _instance;
-
-		///
-		/// Window instance
-		///
-		std::vector<std::shared_ptr<window>> _windows;
-
-		///
-		/// Application's instance
+		/// Process instance.
 		///
 		HINSTANCE _hinstance;
 
 		///
-		/// Drawing
+		/// Graphics
 		///
-		BLENDFUNCTION _blendFunction;
-		BITMAPINFO _bitmapInfo;
-		HDC _hdcMemory;
-		HDC _hdcScreen;
-		HBITMAP _dibMain;
-		LPVOID _blankMemory;
+		graphics _graphics;
+
+		///
+		/// Windows
+		///
+		std::vector<window*> _windows;
 
 	public:
 		///
 		/// Constructor
 		///
-		application()
+		application(HINSTANCE hinstance = NULL)
+			: _hinstance(hinstance)
 		{
+			this->initialize();
 		}
 
 		///
@@ -61,30 +56,21 @@ namespace minigui
 		///
 		~application()
 		{
+			this->destroy();
 		}
 
-	public:
-		///
-		/// Singleton
-		///
-		static std::shared_ptr<application> instance()
-		{
-			return application::_instance;
-		}
-
-	public:
 		///
 		/// Initialization
 		///
-		bool initialize(HINSTANCE hinstance = NULL)
+		bool initialize()
 		{
-			if (hinstance == NULL)
+			/// Instance check
+			if (this->_hinstance == NULL)
 			{
-				hinstance = GetModuleHandle(NULL);
+				this->_hinstance = GetModuleHandle(NULL);
 			}
 
-			this->_hinstance = hinstance;
-
+			/// Initialize common constrols
 			INITCOMMONCONTROLSEX iccex = { 0, };
 			iccex.dwSize = sizeof(iccex);
 			iccex.dwICC = ICC_STANDARD_CLASSES;
@@ -93,5 +79,43 @@ namespace minigui
 			return true;
 		}
 
+		///
+		/// Destroy
+		///
+		void destroy()
+		{
+			for (auto w : this->_windows)
+			{
+				delete w;
+			}
+			this->_windows.clear();
+		}
+
+	public:
+		///
+		/// Initialization
+		///
+		template <typename T>
+		T* window()
+		{
+			T* w = new T(this);
+			w->initialize();
+			this->_windows.push_back(w);
+			return w;
+		}
+
+		///
+		/// Executes the application
+		///
+		int execute()
+		{
+			MSG msg;
+			while (GetMessage(&msg, NULL, 0, 0) > 0)
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+			return msg.wParam;
+		}
 	};
 }

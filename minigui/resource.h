@@ -1,7 +1,7 @@
 #pragma once
 
 ///
-/// Minigui
+/// Minigui namespace
 ///
 class minigui
 {
@@ -15,9 +15,12 @@ class minigui
 		{
 		}
 
-		~resource()
+		virtual ~resource()
 		{
 		}
 	};
 
+	///
+	/// 
+	///
 };

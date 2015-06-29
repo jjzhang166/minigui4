@@ -1,21 +1,50 @@
 #pragma once
 
+///
+/// Minigui namespace
+///
 namespace minigui 
 {
+	///
+	/// Application class
+	///
+	class application;
 
+	///
+	/// Window class
+	///
 	class window
 	{
-	public:
-		window()
-		{
+	private:
+		///
+		/// Application instance
+		///
+		application* _application;
 
+	public:
+		///
+		/// Constructor
+		///
+		window(application* app)
+			: _application(app)
+		{
 		}
 		
-		~window()
+		///
+		/// Destructor
+		///
+		virtual ~window()
+		{
+		}
+
+		///
+		/// Initialization
+		///
+		virtual void initialize()
 		{
 
 		}
-	};
 
+	};
 
 }
